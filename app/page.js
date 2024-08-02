@@ -1,48 +1,37 @@
 'use client';
-import { createSlice, configureStore } from '@reduxjs/toolkit';
-import React, { useEffect, useState } from 'react';
 import styles from './page.module.css';
-
-const counterSlice = createSlice({
-	name: 'counter',
-	initialState: 0,
-	reducers: {
-		increment: (state) => state + 1,
-		decrement: (state) => state - 1,
-		reset: () => 0,
-	},
-});
-
-const store = configureStore({
-	reducer: counterSlice.reducer,
-});
+import Link from 'next/link';
+import { useSelector } from 'react-redux';
 
 export default function Home() {
-	const [count, setCount] = useState(store.getState());
+	const posts = useSelector((state) => state.posts.posts);
 
-	useEffect(() => {
-		const unsubscribe = store.subscribe(() => {
-			setCount(store.getState());
-		});
-
-		return () => {
-			unsubscribe();
-		};
-	}, []);
-
-	const handleIncrement = () => {
-		store.dispatch(counterSlice.actions.increment());
-	};
-
-	const handleDecrement = () => {
-		store.dispatch(counterSlice.actions.decrement());
+	const renderPosts = () => {
+		if (posts.length > 0) {
+			return posts.map((post) => {
+				return (
+					<li className='list-group-item' key={post.id}>
+						<Link href={`/posts/${post.id}`}>{post.title}</Link>
+					</li>
+				);
+			});
+		} else {
+			return <div>No posts to show</div>;
+		}
 	};
 
 	return (
 		<main className={styles.main}>
-			<button onClick={handleDecrement}>-</button>
-			<h1>{count}</h1>
-			<button onClick={handleIncrement}>+</button>
+			<div>
+				<div className='text-xs-right'>
+					<Link className='btn btn-primary' href='/posts/new'>
+						Add a Post
+					</Link>
+				</div>
+				<br></br>
+				<h3>Posts</h3>
+				<ul className='list-group'>{renderPosts()}</ul>
+			</div>
 		</main>
 	);
 }
