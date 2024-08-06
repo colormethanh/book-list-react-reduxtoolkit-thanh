@@ -2,19 +2,19 @@
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useSelector, useDispatch } from 'react-redux';
-import { deletePost } from '../../store/slices/posts';
+import { deletePost, fetchPost } from '../../store/slices/posts';
+import { useEffect } from 'react';
 
 const PostsShow = () => {
 	const { id } = useParams();
 	const router = useRouter();
 	const dispatch = useDispatch();
-	const post = useSelector(({ posts }) => {
-		return posts.posts.find((post) => {
-			return post.id === parseInt(id);
-		});
-	});
 
-  if (post === undefined) return 
+  useEffect(() => {
+    dispatch(fetchPost(id));
+  }, [dispatch, id]);
+
+	const post = useSelector((state) => state.posts.post);
 
 	const onDeleteClick = () => {
 		dispatch(deletePost(id));
@@ -22,12 +22,12 @@ const PostsShow = () => {
 	};
 
 	const renderCategories = () => {
-		return (post.categories || []).map((category, i) => {
-			if (post.categories.length - 1 === i) {
-				return <span key={i}>{category}</span>;
-			} else {
-				return <span key={i}>{category}, </span>;
-			}
+		return post?.categories?.map?.((category) => {
+			return (
+				<span className='label label-primary' key={category}>
+					{category}
+				</span>
+			);
 		});
 	};
 
